@@ -11,6 +11,7 @@ import frc.robot.commands.arm.ActuateArm;
 import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.AutonomousDistance;
 import frc.robot.commands.AutonomousTime;
+import frc.robot.commands.arm.ArmAutoTestCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -97,6 +98,7 @@ public class RobotContainer {
     // This command allows you to put commands into NetworkTable.
     // With NetworkTable you can add commands to the Auto routines.
     SmartDashboard.putData(m_chooser);
+    SmartDashboard.putData("SlowMove Arm", getArmMoveTestCommand());
   }
 
   /**
@@ -122,6 +124,12 @@ public class RobotContainer {
   public Command getArmMoveCommand() {
     return new ActuateArm(
             m_arm, () -> -m_ikControls.getRawAxis(1)
+    );
+  }
+
+  public Command getArmMoveTestCommand() {
+    return new ArmAutoTestCommand(
+            m_arm, 90
     );
   }
 }
