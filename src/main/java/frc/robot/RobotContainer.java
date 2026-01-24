@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.commands.arm.ActuateArm;
 import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.AutonomousDistance;
 import frc.robot.commands.AutonomousTime;
@@ -37,6 +38,10 @@ public class RobotContainer {
   // Assumes a gamepad plugged into channel 0
   private final Joystick m_controller = new Joystick(0);
 
+  // Assumes a keyboard on channel 1
+  // Uses i=up k=down keybind. These are the defaults
+  private final Joystick m_ikControls = new Joystick(1);
+
   // Create SmartDashboard chooser for autonomous routines
   private final SendableChooser<Command> m_chooser = new SendableChooser<>();
 
@@ -60,6 +65,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Default command is arcade drive. This will run unless another command
     // is scheduled over it.
+    m_arm.setDefaultCommand(getArmMoveCommand());
     m_drivetrain.setDefaultCommand(getArcadeDriveCommand());
 
     // Example of how to use the onboard IO
@@ -78,9 +84,18 @@ public class RobotContainer {
         .onTrue(new InstantCommand(() -> m_arm.setAngle(90.0), m_arm))
         .onFalse(new InstantCommand(() -> m_arm.setAngle(0.0), m_arm));
 
+    // Configuration for the new axis (i=up, k=down)
+
     // Setup SmartDashboard options
     m_chooser.setDefaultOption("Auto Routine Distance", new AutonomousDistance(m_drivetrain));
     m_chooser.addOption("Auto Routine Time", new AutonomousTime(m_drivetrain));
+
+    // ##################
+    // ### IMPORTANT! ###
+    // ##################
+
+    // This command allows you to put commands into NetworkTable.
+    // With NetworkTable you can add commands to the Auto routines.
     SmartDashboard.putData(m_chooser);
   }
 
@@ -100,6 +115,13 @@ public class RobotContainer {
    */
   public Command getArcadeDriveCommand() {
     return new ArcadeDrive(
-        m_drivetrain, () -> -m_controller.getRawAxis(1), () -> -m_controller.getRawAxis(0));
+        m_drivetrain, () -> -m_controller.getRawAxis(1), () -> -m_controller.getRawAxis(0)
+    );
+  }
+
+  public Command getArmMoveCommand() {
+    return new ActuateArm(
+            m_arm, () -> -m_ikControls.getRawAxis(1)
+    );
   }
 }
